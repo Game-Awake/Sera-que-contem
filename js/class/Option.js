@@ -11,6 +11,7 @@ class Option extends Phaser.GameObjects.Container {
         this.text = box;
         scene.add.existing(this);
     }
+    
     setText(text) {
         this.text.setText(text);
     }

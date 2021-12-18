@@ -132,6 +132,7 @@ class Main extends Phaser.Scene
           }
       });
     }
+    
     checkIfExists(input) {
       input = input.toLowerCase();
       for(let i=0;i<this.board.answers.length;i++) {
