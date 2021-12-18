@@ -100,11 +100,15 @@ function processData(allText) {
     while (allTextLines.length>i) {
         entries = allTextLines[i].split(',');
         for (var j=0; j<tarr.length; j++) {
-            let answer = entries[tarr[j]].toLowerCase();
-            if(columns[j].answers[answer]) {
-                columns[j].answers[answer]++
-            } else {
-                columns[j].answers[answer] = 1;
+            try {
+                let answer = entries[tarr[j]].toLowerCase();
+                if(columns[j].answers[answer]) {
+                    columns[j].answers[answer]++
+                } else {
+                    columns[j].answers[answer] = 1;
+                }
+            } catch(ex) {
+
             }
         }
         i++;
