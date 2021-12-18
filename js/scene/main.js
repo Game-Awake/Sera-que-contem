@@ -20,6 +20,8 @@ class Main extends Phaser.Scene
 
     create ()
     {
+      game.scale.resize(width, height);
+
       this.currentPlayer = 0;
 
       let style = {
@@ -114,7 +116,7 @@ class Main extends Phaser.Scene
         i++;
       }
 
-      this.element = this.add.dom(600, 200).createFromCache("input");
+      this.element = this.add.dom(100, 200).createFromCache("input");
       this.element.addListener("click");
       this.element.on("click", (event) => {
           if (event.target.name === "playButton") {
@@ -132,7 +134,7 @@ class Main extends Phaser.Scene
           }
       });
     }
-    
+
     checkIfExists(input) {
       input = input.toLowerCase();
       for(let i=0;i<this.board.answers.length;i++) {

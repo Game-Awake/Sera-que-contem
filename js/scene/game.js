@@ -14,7 +14,7 @@ class Game extends Phaser.Scene
     {
         let scene = this;
         
-        let element = this.add.dom(width/2, 200).createFromCache("start");
+        let element = this.add.dom(200, 200).createFromCache("start");
                 element.addListener("click");
                 console.log(element);
                 element.setVisible(true);
@@ -38,24 +38,21 @@ class Game extends Phaser.Scene
                             url: url,
                             dataType: "text",
                             success: (data) => {
+                                data = processData(data);
+                                let question = data[0];
+                                width = Math.max(width,450+Object.keys(question.answers).length*350);
                                 scene.scene.start("main", {
-                                    data:processData(data),
+                                    data:data,
                                     teams:parseInt(txtPlayers.value)
                                 });
                             }
                         });
                     }
                 });
-                this.tweens.add({
-                    targets: element,
-                    y: 200,
-                    duration: 1000,
-                    ease: "Power3",
-                });
     }
 }
 
-const width = screen.availWidth * 0.8;
+let width = 600;
 const height = screen.availHeight * 0.8;
 
 const config = {
