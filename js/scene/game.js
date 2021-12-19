@@ -125,7 +125,5 @@ function processData(allText) {
 }
 
 function isSafari() {
-    console.log(navigator.userAgent);
-    console.log(navigator.userAgent.indexOf("Safari") != -1);
-    return navigator.userAgent.indexOf("Safari") != -1;
+    return navigator.userAgent.indexOf("Mac OS") != -1;
 }
