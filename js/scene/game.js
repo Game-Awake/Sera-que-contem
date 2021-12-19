@@ -14,7 +14,7 @@ class Game extends Phaser.Scene
     {
         let scene = this;
         
-        let element = this.add.dom(400, 150).createFromCache("start");
+        let element = this.add.dom(0, 150).createFromCache("start");
                 element.addListener("click");
                 console.log(element);
                 element.setVisible(true);
@@ -63,6 +63,7 @@ const config = {
       width: width,
       height: height
     },
+    canvas: document.getElementById('myCustomCanvas'),
     dom: {
         createContainer: true
     },

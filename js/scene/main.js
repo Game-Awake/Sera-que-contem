@@ -72,7 +72,7 @@ class Main extends Phaser.Scene
       this.questionLabel = this.add.text(this.step+150,10,"",style);
       this.board.answers = [];
 
-      this.element = this.add.dom(this.step, 200).createFromCache("input");
+      this.element = this.add.dom(width/-2 + 100, 200).createFromCache("input");
       this.element.addListener("click");
       this.element.on("click", (event) => {
           if (event.target.name === "playButton") {
