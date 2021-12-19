@@ -74,6 +74,24 @@ class Main extends Phaser.Scene
       this.questionLabel = this.add.text(this.step+150,10,"",style);
       this.board.answers = [];
 
+      this.element = this.add.dom(this.step, 200).createFromCache("input");
+      this.element.addListener("click");
+      this.element.on("click", (event) => {
+          if (event.target.name === "playButton") {
+              var inputText = this.element.getChildByName("txtResposta");
+
+              //  Have they entered anything?
+              if (inputText.value !== "") {
+
+                  this.checkIfExists(inputText.value);
+                  this.currentPlayer++;
+                  this.currentPlayer = this.currentPlayer % this.teams;
+
+                  inputText.value = "";
+              }
+          }
+      });
+
       this.showQuestion();
     }
     showQuestion() {
@@ -116,24 +134,6 @@ class Main extends Phaser.Scene
         }
         i++;
       }
-
-      this.element = this.add.dom(this.step, 200).createFromCache("input");
-      this.element.addListener("click");
-      this.element.on("click", (event) => {
-          if (event.target.name === "playButton") {
-              var inputText = this.element.getChildByName("txtResposta");
-
-              //  Have they entered anything?
-              if (inputText.value !== "") {
-
-                  this.checkIfExists(inputText.value);
-                  this.currentPlayer++;
-                  this.currentPlayer = this.currentPlayer % this.teams;
-
-                  inputText.value = "";
-              }
-          }
-      });
     }
 
     checkIfExists(input) {
