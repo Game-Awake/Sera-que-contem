@@ -39,8 +39,6 @@ class Game extends Phaser.Scene
                             dataType: "text",
                             success: (data) => {
                                 data = processData(data);
-                                let question = data[0];
-                                width = Math.max(width,450+Object.keys(question.answers).length*350);
                                 scene.scene.start("main", {
                                     data:data,
                                     teams:parseInt(txtPlayers.value)
@@ -52,13 +50,15 @@ class Game extends Phaser.Scene
     }
 }
 
-let width = 600;
+let width = screen.availWidth * 0.8;
 const height = screen.availHeight * 0.8;
 
 const config = {
     type: Phaser.CANVAS,
     backgroundColor: '#125555',
     scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
       parent:"divCanvas",
       width: width,
       height: height

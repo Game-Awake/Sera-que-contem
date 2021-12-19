@@ -5,7 +5,7 @@ class Main extends Phaser.Scene
     {
         super('main');
         this.board = {teams:[],questions:[]};
-        this.step = 70;
+        this.step = 100;
     }
 
     init(data) {
@@ -21,8 +21,6 @@ class Main extends Phaser.Scene
 
     create ()
     {
-      game.scale.resize(width, height);
-
       this.currentPlayer = 0;
 
       let style = {
@@ -56,10 +54,10 @@ class Main extends Phaser.Scene
         }
         let text = "Team " + id;
         this.board.teams[id].name = this.add.text(this.step+80,120+i*40,text,style);
-        this.board.teams[id].name.setOrigin(0.5);
+        this.board.teams[id].name.setOrigin(0);
         this.board.teams[id].name.setInteractive();
         this.board.teams[id].score = this.add.text(this.step+80,120+(i+1)*40,"0",style);
-        this.board.teams[id].score.setOrigin(0.5);
+        this.board.teams[id].score.setOrigin(0);
         this.board.teams[id].points = 0;
       }
 
@@ -68,7 +66,7 @@ class Main extends Phaser.Scene
         fontFamily: 'Arial',
         align: "center",
         color:'#ff0000',
-        wordWrap: { width: 800, useAdvancedWrap: true }
+        wordWrap: { width: width - 200, useAdvancedWrap: true }
       }
 
       this.questionLabel = this.add.text(this.step+150,10,"",style);
@@ -96,10 +94,13 @@ class Main extends Phaser.Scene
     }
     showQuestion() {
       this.question = this.data[this.currentQuestion];
+      let x = Math.floor((Object.keys(this.question.answers).length-1)/5);
+      width = Math.max(width,450+x*350);
+      game.scale.resize(width, height);
       let text = this.question.question;
       this.questionLabel.setText(text);
 
-      let x = 0;
+      x = 0;
       let y = 0;
 
       for(let i=0;i<this.board.answers.length;i++) {
