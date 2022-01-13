@@ -32,7 +32,7 @@ class Main extends Phaser.Scene
         wordWrap: { width: 100, useAdvancedWrap: true }
       }
 
-      let next = this.add.text(this.step+10,10,"Próxima",style);
+      let next = this.add.text(10,10,"Próxima",style);
       next.setPadding(16,16);
       next.setInteractive();
       next.on("pointerdown",() => {
@@ -72,7 +72,7 @@ class Main extends Phaser.Scene
       this.questionLabel = this.add.text(this.step+150,10,"",style);
       this.board.answers = [];
 
-      this.element = this.add.dom(isSafari() ? width/-2+100 : 100, 200).createFromCache("input");
+      this.element = this.add.dom(150, 650).createFromCache("input");
       this.element.addListener("click");
       this.element.on("click", (event) => {
           if (event.target.name === "playButton") {
@@ -115,10 +115,25 @@ class Main extends Phaser.Scene
         fontFamily: 'Arial',
         align: "center",
         color:'#ffffff',
-        wordWrap: { width: 100, useAdvancedWrap: true }
+        wordWrap: { width: 140, useAdvancedWrap: true }
       }
+
       for(let j in this.question.answers) {
         this.board.answers[i] = {value:j,percentage:this.question.answers[j]};
+        i++;
+      }
+
+      for(let i=0;i<this.board.answers.length-1;i++) {
+        for(let j=i+1;j<this.board.answers.length;j++) {
+          if(this.board.answers[i].percentage < this.board.answers[j].percentage) {
+            let temp = this.board.answers[i];
+            this.board.answers[i] = this.board.answers[j];
+            this.board.answers[j] = temp;
+          }
+        }
+      }
+
+      for(let i=0;i<this.board.answers.length;i++) {
         text = "";
         this.board.answers[i].optionValue = new Option(this.step+300+x*350,150+y*100,150,80,
           0x0000ff,2,0xffffff,
@@ -133,7 +148,6 @@ class Main extends Phaser.Scene
           x++;
           y=0;
         }
-        i++;
       }
     }
 

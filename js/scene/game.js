@@ -14,9 +14,8 @@ class Game extends Phaser.Scene
     {
         let scene = this;
         
-        let element = this.add.dom(isSafari() ? 0 : width/2, 150).createFromCache("start");
+        let element = this.add.dom(width/2, 150).createFromCache("start");
                 element.addListener("click");
-                console.log(element);
                 element.setVisible(true);
                 element.on("click", function (event) {
                     if (event.target.name === "playButton") {
@@ -79,32 +78,49 @@ let tutorial = 0;
 
 function processData(allText) {
     let allTextLines = allText.split(/\r\n|\n/);
-    let total = allTextLines.length - 1;
-    let entries = allTextLines[0].split(',');
+    let total = [];
+    let entries = allTextLines[0].split('\t');
     let lines = [];
 
     let record_num = entries.length;
     let columns = [];
     let tarr = [];
     let k = 0;
+    let onlyQuestion = true;
     for (var j=0; j<record_num; j++) {
         if(entries[j].startsWith("#")) {
+            onlyQuestion = false;
             tarr[k] = j;
             columns[k] = {question:entries[j].substring(1),answers:{}};
+            total[k] = 0;
+            k++;
+        }
+    }
+    if(onlyQuestion) {
+        for (var j=1; j<record_num; j++) {
+            onlyQuestion = false;
+            tarr[k] = j;
+            columns[k] = {question:entries[j],answers:{}};
+            total[k] = 0;
             k++;
         }
     }
     let i = 1;
     while (allTextLines.length>i) {
-        entries = allTextLines[i].split(',');
+        entries = allTextLines[i].split('\t');
         for (var j=0; j<tarr.length; j++) {
             try {
-                let answer = entries[tarr[j]].toLowerCase();
+                let answer = entries[tarr[j]].trim();
+                if(answer == "") {
+                    continue;
+                }
+                answer = answer.replace("."," ").replace(/\s+/g, ' ').toLowerCase();
                 if(columns[j].answers[answer]) {
                     columns[j].answers[answer]++
                 } else {
                     columns[j].answers[answer] = 1;
                 }
+                total[j]++;
             } catch(ex) {
 
             }
@@ -112,15 +128,21 @@ function processData(allText) {
         i++;
     }
     for(let i=0;i<columns.length;i++) {
+        console.log(columns[i].answers);
         for(let j in columns[i].answers) {
-            let percentage = columns[i].answers[j] / total * 100;
-            if(percentage >= 1) {
-                columns[i].answers[j] = Math.floor(percentage);
+            if(total[i] == 0) {
+                delete columns[i].answers[j];
             } else {
-                columns[i].answers.splice(j,1);
+                let percentage = columns[i].answers[j] / total[i] * 100;
+                if(percentage >= 1) {
+                    columns[i].answers[j] = Math.floor(percentage);
+                } else {
+                    delete columns[i].answers[j];
+                }
             }
         }
     }
+    console.log(columns);
     return columns;
 }
 
