@@ -21,7 +21,13 @@ class Game extends Phaser.Scene
                     if (event.target.name === "playButton") {
                         let txtURL = this.getChildByName("txtURL");
                         let txtPlayers = this.getChildByName("txtPlayers");
-    
+
+                        try {
+                            skip = parseInt(this.getChildByName("txtSkipColumn").value);
+                        } catch {
+
+                        }
+                        
                         let url = txtURL.value;
                         //  Have they entered anything?
                         if (url == "") {
@@ -73,6 +79,7 @@ let question = null;
 let url = new URL(window.location.href);
 const jogo = url.searchParams.get("jogo");
 
+let skip = 1;
 let game = new Phaser.Game(config);
 let tutorial = 0;
 
@@ -97,7 +104,7 @@ function processData(allText) {
         }
     }
     if(onlyQuestion) {
-        for (var j=1; j<record_num; j++) {
+        for (var j=skip; j<record_num; j++) {
             onlyQuestion = false;
             tarr[k] = j;
             columns[k] = {question:entries[j],answers:{}};
