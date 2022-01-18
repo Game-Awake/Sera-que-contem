@@ -12,47 +12,56 @@ class Game extends Phaser.Scene
 
     create ()
     {
-        let scene = this;
-        
-        let element = this.add.dom(width/2, 150).createFromCache("start");
-                element.addListener("click");
-                element.setVisible(true);
-                element.on("click", function (event) {
-                    if (event.target.name === "playButton") {
-                        let txtURL = this.getChildByName("txtURL");
-                        let txtPlayers = this.getChildByName("txtPlayers");
+        if(parent.teams) {
+            this.callMain(
+                parent.urlSera,
+                parent.teams
+            );
+        } else {
+            let element = this.add.dom(width/2, 150).createFromCache("start");
+            element.addListener("click");
+            element.setVisible(true);
+            element.on("click", function (event) {
+                if (event.target.name === "playButton") {
+                    let txtURL = this.getChildByName("txtURL");
+                    let txtPlayers = this.getChildByName("txtPlayers");
 
-                        try {
-                            skip = parseInt(this.getChildByName("txtSkipColumn").value);
-                        } catch {
+                    try {
+                        skip = parseInt(this.getChildByName("txtSkipColumn").value);
+                    } catch {
 
-                        }
-                        
-                        let url = txtURL.value;
-                        //  Have they entered anything?
-                        if (url == "") {
-                            url = "data/1.csv";
-                        }
-                        //  Turn off the click events
-                        this.removeListener("click");
-                        //  Hide the login element
-                        this.setVisible(false);
-
-                        $.ajax({
-                            type: "GET",
-                            url: url,
-                            dataType: "text",
-                            success: (data) => {
-                                data = processData(data);
-                                scene.scene.start("main", {
-                                    data:data,
-                                    teams:parseInt(txtPlayers.value)
-                                });
-                            }
-                        });
                     }
-                });
+                    
+                    let url = txtURL.value;
+                    //  Have they entered anything?
+                    if (url == "") {
+                        url = "data/1.csv";
+                    }
+                    //  Turn off the click events
+                    this.removeListener("click");
+                    //  Hide the login element
+                    this.setVisible(false);
+
+                }
+            });
+        }
     }
+
+    callMain(url,teams) {
+        $.ajax({
+            type: "GET",
+            url: url,
+            dataType: "text",
+            success: (data) => {
+                data = processData(data);
+                this.scene.start("main", {
+                    data:data,
+                    teams:teams
+                });
+            }
+        });
+    }
+
 }
 
 let width = screen.availWidth * 0.8;
@@ -135,7 +144,7 @@ function processData(allText) {
         i++;
     }
     for(let i=0;i<columns.length;i++) {
-        console.log(columns[i].answers);
+        let tot = 0;
         for(let j in columns[i].answers) {
             if(total[i] == 0) {
                 delete columns[i].answers[j];
@@ -143,19 +152,16 @@ function processData(allText) {
                 let percentage = columns[i].answers[j] / total[i] * 100;
                 if(percentage >= 1) {
                     columns[i].answers[j] = Math.floor(percentage);
+                    tot += columns[i].answers[j];
                 } else {
                     delete columns[i].answers[j];
                 }
             }
         }
+        for(let j in columns[i].answers) {
+            columns[i].answers[j] += 100 - tot;
+            break;
+        }
     }
-    console.log(columns);
     return columns;
-}
-
-function isSafari() {
-    return navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-        navigator.userAgent &&
-        navigator.userAgent.indexOf('CriOS') == -1 &&
-        navigator.userAgent.indexOf('FxiOS') == -1;
 }
