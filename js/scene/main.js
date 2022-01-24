@@ -25,6 +25,7 @@ class Main extends Phaser.Scene
       this.currentPlayer = 0;
       this.currentTurn = 0;
       this.totalQuestion = 0;
+      this.weight = [1,1,2,3];
 
       let style = {
         fontSize: 26,
@@ -83,7 +84,7 @@ class Main extends Phaser.Scene
           fontSize: 20,
           fontFamily: 'Arial',
           align: "center",
-          color:'#000000',
+          color:this.colors[id],
           wordWrap: { width: 120, useAdvancedWrap: true }
         }
         let text = this.teams[id];
@@ -106,6 +107,7 @@ class Main extends Phaser.Scene
       notUpdate = true;
     }
     showQuestion() {
+      this.matchedFirst = false;
       this.lastChance = false;
       this.isFirst = true;
       this.currentPoints = 0;
@@ -185,8 +187,9 @@ class Main extends Phaser.Scene
           this.currentPoints += this.board.answers[i].percentage;
           this.shown++;
           hasMatch = true;
-          if(this.inputs.length < 3) {
+          if(this.inputs.length < 3 && !this.matchedFirst) {
             if(i == 0) {
+              this.matchedFirst = true;
               if(this.board.answers.length == 1) {
                 this.addPoints();
               } else {
@@ -263,7 +266,7 @@ class Main extends Phaser.Scene
       }
     }
     addPoints() {         
-      this.board.teams[this.currentPlayer].points += this.currentPoints;
+      this.board.teams[this.currentPlayer].points += this.currentPoints * this.weight[this.totalQuestion];
       this.board.teams[this.currentPlayer].score.setText(this.board.teams[this.currentPlayer].points);
       this.currentTurn++;
       this.currentTurn = this.currentTurn % 2;

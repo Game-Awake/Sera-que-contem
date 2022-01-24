@@ -58,6 +58,7 @@ class Game extends Phaser.Scene
                     data:data,
                     teams:teams
                 });
+                parent.loadedGame();
             }
         });
     }
@@ -69,7 +70,7 @@ const height = screen.availHeight * 0.8;
 
 const config = {
     type: Phaser.CANVAS,
-    backgroundColor: '#125555',
+    backgroundColor: '#eeeeee',
     scale: {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
