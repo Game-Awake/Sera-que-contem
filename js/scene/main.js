@@ -28,20 +28,21 @@ class Main extends Phaser.Scene
       this.weight = [1,1,2,3];
 
       let style = {
-        fontSize: 26,
+        fontSize: 20,
         fontFamily: 'Arial',
         align: "center",
         color:'#ffffff',
-        backgroundColor:"#0000ff",
-        wordWrap: { width: 100, useAdvancedWrap: true }
+        wordWrap: { width: 400, useAdvancedWrap: true }
       }
 
+      this.inputText = this.add.text(600,320, "", style);
+
       style = {
-        fontSize: 40,
+        fontSize: 30,
         fontFamily: 'Arial',
         align: "center",
-        color:'#ff0000',
-        wordWrap: { width: width - 200, useAdvancedWrap: true }
+        color:'#ffffff',
+        wordWrap: { width: width - 300, useAdvancedWrap: true }
       }
 
       this.questionLabel = this.add.text(this.step+150,10,"",style);
@@ -114,6 +115,7 @@ class Main extends Phaser.Scene
       this.lastFound = -1;
       this.shown = 0;
       this.inputs = [];
+      this.inputText.setText("");
       this.question = this.data[this.currentQuestion];
       this.questionCount = Object.keys(this.question.answers).length;
       let x = Math.floor((this.questionCount-1)/5);
@@ -126,6 +128,7 @@ class Main extends Phaser.Scene
       let y = 0;
 
       for(let i=0;i<this.board.answers.length;i++) {
+        this.board.answers[i].isShown = false;
         this.board.answers[i].optionValue.destroy();
         this.board.answers[i].optionPercentage.destroy();
       }
@@ -133,7 +136,7 @@ class Main extends Phaser.Scene
 
       let i = 0;
       let style = {
-        fontSize: 24,
+        fontSize: 18,
         fontFamily: 'Arial',
         align: "center",
         color:'#ffffff',
@@ -141,7 +144,10 @@ class Main extends Phaser.Scene
       }
 
       for(let j in this.question.answers) {
-        this.board.answers[i] = {value:j,percentage:this.question.answers[j]};
+        this.board.answers[i] = {
+          list:this.toList(j),
+          value:j,
+          percentage:this.question.answers[j]};
         i++;
       }
 
@@ -157,11 +163,11 @@ class Main extends Phaser.Scene
 
       for(let i=0;i<this.board.answers.length;i++) {
         text = "";
-        this.board.answers[i].optionValue = new Option(this.step+300+x*350,150+y*100,150,80,
+        this.board.answers[i].optionValue = new Option(this.step+300+x*350,150+y*80,150,60,
           0x0000ff,2,0xffffff,
           text, style,
           () => {}, this);
-        this.board.answers[i].optionPercentage = new Option(this.step+450+x*350,150+y*100,100,80,
+        this.board.answers[i].optionPercentage = new Option(this.step+430+x*350,150+y*80,60,60,
           0x0000ff,2,0xffffff,
           text, style,
           () => {}, this);
@@ -175,13 +181,25 @@ class Main extends Phaser.Scene
         this.selectTeam(this.currentTurn);
       }
     }
-
+    toList(value) {
+      var list = value.split("/");
+      for(let i=0;i<list.length;i++) {
+        list[i] = this.removeAccent(list[i].trim()).toLowerCase();
+      }
+      return list;
+    }
+    removeAccent(value) {
+      return value.normalize("NFD").replace(/\p{Diacritic}/gu, "");
+    }
     checkIfExists(input) {
       input = input.toLowerCase();
       this.inputs.push(input);
+      input = this.removeAccent(input);
+      this.inputText.setText(this.inputs.join(" , "));
       let hasMatch = false;
       for(let i=0;i<this.board.answers.length;i++) {
-        if(this.board.answers[i].value == input) {
+        if(this.board.answers[i].list.includes(input)) {
+          this.board.answers[i].isShown = true;
           this.board.answers[i].optionValue.setText(this.board.answers[i].value);
           this.board.answers[i].optionPercentage.setText(this.board.answers[i].percentage);
           this.currentPoints += this.board.answers[i].percentage;
@@ -201,10 +219,15 @@ class Main extends Phaser.Scene
                   this.changePlayer();
                   this.showOption(this.teams[this.currentPlayer] + " acertou\na maior opção\nDeseja continuar\njogando?");
                 } else {
-                  this.showOption(this.teams[this.currentPlayer] + " acertou\na opção maior\nDeseja continuar\njogando?");
+                  this.showOption(this.teams[1-this.currentPlayer] + " acertou\na maior opção\nDeseja continuar\njogando?");
                 }
               } else {
-                this.changePlayer();
+                if(this.inputs.length < 2) 
+                {
+                  this.changePlayer();
+                } else {
+                  this.showOption(this.teams[this.currentPlayer] + " acertou\na maior opção\nDeseja continuar\njogando?");
+                }
               }
             }
             this.lastFound = i;
@@ -217,13 +240,18 @@ class Main extends Phaser.Scene
       if(this.inputs.length < 2) {
         this.changePlayer();
       } else {
-        if(this.lastFound == -1) {
+        if(this.lastFound == -1 && this.inputs.length < 3) {
           this.changePlayer();
           this.showOption("Como ninguém acertou,\n a vez é de " + this.teams[this.currentPlayer],() => {
             this.back.destroy();
             this.text.destroy();
             this.element.setVisible(true);
           });
+          return;
+        }
+        if(this.lastFound > -1 && this.inputs.length < 3 && !hasMatch && !this.matchedFirst) {
+          this.changePlayer();
+          this.showOption(this.teams[1-this.currentPlayer] + " acertou\na maior opção\nDeseja continuar\njogando?");
           return;
         }
         if(this.lastChance) {
@@ -256,11 +284,11 @@ class Main extends Phaser.Scene
       return () => {
         this.back.destroy();
         this.text.destroy();
-        this.element.setVisible(true);
 
         if(this.totalQuestion == 4) {
           this.doEnd();
         } else {
+          this.element.setVisible(true);
           this.showQuestion();
         }
       }
@@ -280,6 +308,14 @@ class Main extends Phaser.Scene
         this.board.teams[i].chance = 0;
         for(let j=0;j<this.board.teams[i].chances.length;j++) {
           this.board.teams[i].chances[j].setFillStyle(0xffffff);
+        }
+      }
+      for(let i=0;i<this.board.answers.length;i++) {
+        if(!this.board.answers[i].isShown) {
+          this.board.answers[i].optionValue.setText(this.board.answers[i].value);
+          this.board.answers[i].optionPercentage.setText(this.board.answers[i].percentage);
+          this.board.answers[i].optionValue.alpha = 0.3;
+          this.board.answers[i].optionPercentage.alpha = 0.3;
         }
       }
       this.showOption(team+"\nvenceu a rodada",this.nextFunction());
@@ -319,11 +355,11 @@ class Main extends Phaser.Scene
       });
     }
     showMessage(callback) {
-      this.back = this.add.rectangle(100,100,600,400,0x000000);
-      this.back.alpha = 0.9;
+      this.back = this.add.rectangle(500,100,600,400,0x000000);
+      this.back.alpha = 0.4;
       this.back.setOrigin(0);
 
-      this.text = this.add.text(150, 150, this.message, { fontFamily: "Arial Black", fontSize: 40 });
+      this.text = this.add.text(550, 150, this.message, { fontFamily: "Arial Black", fontSize: 30 });
       this.text.setOrigin(0);
 
       this.text.setStroke('#000000', 4);
@@ -338,13 +374,13 @@ class Main extends Phaser.Scene
       this.text.setFill(gradient);
 
       if(callback == null) {
-        this.yes = this.add.text(200, 400, "SIM", { fontFamily: "Arial Black", fontSize: 82 });
+        this.yes = this.add.text(600, 400, "SIM", { fontFamily: "Arial Black", fontSize: 82 });
         this.yes.setOrigin(0);
         this.yes.setInteractive();
         this.yes.on("pointerdown",() => {
           this.doDestroy();
         });
-        this.no = this.add.text(400, 400, "NÃO", { fontFamily: "Arial Black", fontSize: 82 });
+        this.no = this.add.text(800, 400, "NÃO", { fontFamily: "Arial Black", fontSize: 82 });
         this.no.setOrigin(0);
         this.no.setInteractive();
         this.no.on("pointerdown",() => {

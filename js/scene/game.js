@@ -65,20 +65,16 @@ class Game extends Phaser.Scene
 
 }
 
-let width = screen.availWidth * 0.8;
-const height = screen.availHeight * 0.8;
+let width = screen.availWidth - 64;
+const height = screen.availHeight - 64;
 
 const config = {
-    type: Phaser.CANVAS,
-    backgroundColor: '#eeeeee',
+    backgroundColor: '#555555',
     scale: {
-      mode: Phaser.Scale.FIT,
-      autoCenter: Phaser.Scale.CENTER_BOTH,
       parent:"divCanvas",
       width: width,
       height: height
     },
-    canvas: document.getElementById('myCustomCanvas'),
     dom: {
         createContainer: true
     },
